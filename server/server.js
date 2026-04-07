@@ -1,0 +1,136 @@
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+
+// Ensure NODE_ENV is set
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const connectDB = require('./config/db');
+const User = require('./models/User');
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const classRoutes = require('./routes/classes');
+const enrollmentRoutes = require('./routes/enrollments');
+const activityLogRoutes = require('./routes/activityLogs');
+const permissionRoutes = require('./routes/permissions');
+const { apiLimiter } = require('./middleware/rateLimiter');
+
+const app = express();
+
+const seedOnBoot = async () => {
+  try {
+    const existingAdmin = await User.findOne({ studentId: 'admin' });
+    if (!existingAdmin) {
+      await User.create({
+        studentId: 'admin',
+        name: 'Admin',
+        phone: '0000',
+        role: 'teacher',
+        password: 'admin123',
+        isActive: true,
+        mustChangePassword: false,
+      });
+      console.log('✅ Admin account seeded');
+      console.log('   Login ID: admin');
+      console.log('   Password: admin123');
+    } else {
+      console.log('✅ Admin account exists');
+    }
+  } catch (error) {
+    console.error('⚠️ Seed on boot failed:', error.message);
+  }
+};
+
+const mongoose = require('mongoose');
+
+// Connect to MongoDB
+connectDB()
+  .then(() => {
+    if (mongoose.connection.readyState === 1) {
+      seedOnBoot();
+    } else {
+      console.log('⚠️ Skipping seedOnBoot because MongoDB is not connected.');
+    }
+  })
+  .catch((err) => console.error('❌ Failed to connect to DB:', err.message));
+
+// Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://meet.jit.si", "https://*.jitsi.net"],
+      frameSrc: ["'self'", "https://meet.jit.si", "https://*.jitsi.net"],
+      connectSrc: ["'self'", "https://meet.jit.si", "wss://meet.jit.si", "https://*.jitsi.net", "wss://*.jitsi.net"],
+      imgSrc: ["'self'", "data:", "https://meet.jit.si"],
+      mediaSrc: ["'self'", "https://meet.jit.si"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    }
+  },
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  noSniff: true,
+  xssFilter: true,
+  referrerPolicy: {
+    policy: 'strict-origin-when-cross-origin'
+  }
+}));
+app.use(cors({
+  origin: (origin, callback) => {
+    // In development, allow all origins
+    if (process.env.NODE_ENV === 'development' || !origin) {
+      return callback(null, true);
+    }
+    const allowed = [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:5174'].filter(Boolean);
+    if (allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+app.use(express.json());
+app.use(morgan('dev'));
+app.use(apiLimiter); // Apply rate limiting to all API routes
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/classes', classRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/activity-logs', activityLogRoutes);
+app.use('/api/permissions', permissionRoutes);
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+module.exports = app;
