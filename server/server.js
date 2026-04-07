@@ -101,6 +101,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(apiLimiter); // Apply rate limiting to all API routes
 
+// Serve static files (in production, client build is in public folder)
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -114,9 +118,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+// Serve React app for all other routes (SPA fallback)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Global error handler
