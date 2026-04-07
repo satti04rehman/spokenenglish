@@ -1,0 +1,9 @@
+client/
+node_modules/
+.git/
+.env
+*.md
+docker-compose.yml
+Dockerfile
+Procfile
+start-production.sh
