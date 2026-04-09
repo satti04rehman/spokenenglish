@@ -11,6 +11,6 @@
     "install-all": "npm install --prefix server && npm install --prefix client"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=20.0.0"
   }
 }
