@@ -6,6 +6,9 @@ import Button from '../components/ui/Button';
 import PermissionRequestPanel from '../components/PermissionRequestPanel';
 import TeacherPermissionPanel from '../components/TeacherPermissionPanel';
 
+import ClassroomChat from '../components/ClassroomChat';
+import { MessageCircle } from 'lucide-react';
+
 const JitsiClassRoom = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,6 +19,7 @@ const JitsiClassRoom = () => {
   const [jitsiConfig, setJitsiConfig] = useState(null);
   const [classTitle, setClassTitle] = useState('');
   const [sessionId, setSessionId] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const jitsiContainerContext = useRef(null);
   const jitsiApiRef = useRef(null);
   const joinTimeRef = useRef(Date.now());
@@ -64,11 +68,9 @@ const JitsiClassRoom = () => {
         setJitsiLoading(false);
       });
 
-      api.addListener('participantJoined', () => {});
-
       api.addListener('readyToClose', () => {
         logClassExit().then(() => {
-          if (user?.role === 'teacher') navigate('/teacher/dashboard');
+          if (user?.role === 'teacher' || user?.role === 'admin') navigate('/teacher/dashboard');
           else navigate('/student/dashboard');
         });
       });
@@ -91,7 +93,6 @@ const JitsiClassRoom = () => {
     return () => {
       if (jitsiApiRef.current) jitsiApiRef.current.dispose();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jitsiConfig, navigate, user?.role]);
 
   if (loading) return (
@@ -115,7 +116,10 @@ const JitsiClassRoom = () => {
       <div className="jitsi-toolbar">
         <div className="jitsi-toolbar-left">
           <Button size="sm" variant="danger" onClick={() => {
-            logClassExit().then(() => navigate(-1));
+            logClassExit().then(() => {
+                if (user?.role === 'teacher' || user?.role === 'admin') navigate('/teacher/dashboard');
+                else navigate('/student/dashboard');
+            });
           }}>← Leave</Button>
           <span className="jitsi-toolbar-title">{classTitle}</span>
         </div>
@@ -125,7 +129,7 @@ const JitsiClassRoom = () => {
               🔇 Muted by default · Raise Hand to speak
             </span>
           )}
-          {user.role === 'teacher' && (
+          {(user.role === 'teacher' || user.role === 'admin') && (
             <span className="jitsi-role-label" style={{ color: '#6ee7b7', background: 'rgba(110,231,183,0.1)' }}>
               🎙️ You are the host
             </span>
@@ -145,9 +149,39 @@ const JitsiClassRoom = () => {
         <div id="jitsi-container" ref={jitsiContainerContext} style={{ width: '100%', height: '100%' }} />
       </div>
 
+      {/* Floating Chat Toggle */}
+      <button 
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        style={{
+          position: 'absolute',
+          right: '20px',
+          bottom: '20px',
+          width: '50px',
+          height: '50px',
+          borderRadius: '25px',
+          backgroundColor: '#4f46e5',
+          color: 'white',
+          border: 'none',
+          boxShadow: '0 4px 15px rgba(79, 70, 229, 0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 100,
+          transition: 'transform 0.2s'
+        }}
+        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <MessageCircle size={24} />
+      </button>
+
+      {/* Secure Chat Component */}
+      <ClassroomChat classId={id} user={user} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
       {/* Permission Panels */}
       {user?.role === 'student' && <PermissionRequestPanel classId={id} isVisible={true} />}
-      {user?.role === 'teacher' && <TeacherPermissionPanel classId={id} isVisible={true} />}
+      {(user?.role === 'teacher' || user?.role === 'admin') && <TeacherPermissionPanel classId={id} isVisible={true} />}
     </div>
   );
 };
