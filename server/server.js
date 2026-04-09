@@ -84,11 +84,25 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: (origin, callback) => {
-    // In development, allow all origins
+    // In development or if no origin, allow
     if (process.env.NODE_ENV === 'development' || !origin) {
       return callback(null, true);
     }
-    const allowed = [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:5174'].filter(Boolean);
+    
+    // Parse the CLIENT_URL to tolerate trailing slashes
+    let configuredUrl = process.env.CLIENT_URL || '';
+    if (configuredUrl.endsWith('/')) {
+      configuredUrl = configuredUrl.slice(0, -1);
+    }
+
+    const allowed = [
+      configuredUrl, 
+      'http://localhost:5173', 
+      'http://localhost:5174',
+      'https://web-production-f0f35.up.railway.app' // Hardcode allowing the current Railway app domain
+    ].filter(Boolean);
+
+    // If the origin matches any of the allowed origins, or if the origin is the same as the host
     if (allowed.includes(origin)) {
       callback(null, true);
     } else {
@@ -124,7 +138,9 @@ app.get('/api/debug', (req, res) => {
   const distPath = path.join(__dirname, '../client/dist');
   try {
     const files = fs.readdirSync(distPath);
-    res.json({ path: distPath, files });
+    const assetsPath = path.join(distPath, 'assets');
+    const assetsFiles = fs.existsSync(assetsPath) ? fs.readdirSync(assetsPath) : [];
+    res.json({ path: distPath, files, assetsFiles });
   } catch (err) {
     res.json({ error: err.message, path: distPath });
   }
