@@ -21,15 +21,20 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    const result = await login(studentId, password);
-    setLoading(false);
-    
-    if (result.success) {
-      const u = result.user;
-      if (u.mustChangePassword) navigate('/change-password');
-      else if (u.role === 'teacher') navigate('/teacher/dashboard');
-      else if (u.role === 'student') navigate('/student/dashboard');
+    try {
+      setLoading(true);
+      const result = await login(studentId, password);
+      
+      if (result.success) {
+        const u = result.user;
+        if (u.mustChangePassword) navigate('/change-password');
+        else if (u.role === 'teacher') navigate('/teacher/dashboard');
+        else if (u.role === 'student') navigate('/student/dashboard');
+      }
+    } catch (err) {
+      console.error('Login handleSubmit error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 

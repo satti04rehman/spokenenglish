@@ -53,13 +53,24 @@ const getJitsiConfig = (role, userName, roomName) => {
       'mute-everyone', 'security'
     ];
   } else {
-    // Student gets restricted controls
+    // Student gets heavily restricted controls - absolutely no access
     baseConfig.configOverwrite.startWithAudioMuted = true;
     baseConfig.configOverwrite.startWithVideoMuted = true;
-    baseConfig.interfaceConfigOverwrite.TOOLBAR_BUTTONS = [
-      'microphone', 'camera', 'raisehand',
-      'tileview', 'fullscreen', 'hangup'
-    ];
+    
+    // Strict permissions locking down any ability to alter the call
+    baseConfig.configOverwrite.disableModeratorIndicator = true;
+    baseConfig.configOverwrite.disableRemoteMute = true;
+    baseConfig.configOverwrite.remoteVideoMenu = {
+        disableKick: true,
+        disableGrantModerator: true
+    };
+    baseConfig.configOverwrite.participantsPane = {
+        hideMoreActionsButton: true,
+        hideMuteAllButton: true
+    };
+
+    // Strip ALL buttons from the interface toolbar so they cannot interact with settings
+    baseConfig.interfaceConfigOverwrite.TOOLBAR_BUTTONS = [];
     baseConfig.interfaceConfigOverwrite.DISABLE_JOIN_LEAVE_NOTIFICATIONS = true;
   }
 
