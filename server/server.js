@@ -101,9 +101,9 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(apiLimiter); // Apply rate limiting to all API routes
 
-// Serve static files (in production, client build is in public folder)
+// Serve static files (in production, client build is in client/dist folder)
 const path = require('path');
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -120,7 +120,7 @@ app.get('/api/health', (req, res) => {
 
 // Serve React app for all other routes (SPA fallback)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // Global error handler
