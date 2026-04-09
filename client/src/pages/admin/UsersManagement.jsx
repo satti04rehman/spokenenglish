@@ -7,11 +7,13 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import { toast } from 'react-hot-toast';
 import {
-  Search, UserPlus, Filter, UserX, UserCheck, Phone, Calendar, Shield
+  Search, UserPlus, Filter, UserX, UserCheck, Phone, Calendar, Shield, Trash2, KeyRound
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const UsersManagement = () => {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,7 +23,7 @@ const UsersManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/users?limit=200');
+      const res = await api.get('/users?limit=200&includePasswords=true');
       setUsers(res.data.users || []);
     } catch (_err) {
       toast.error(_err?.response?.data?.message || 'Failed to load users');
@@ -38,9 +40,19 @@ const UsersManagement = () => {
     } catch (err) { toast.error(err.response?.data?.message || 'Action failed'); }
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.studentId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+  const handleDeleteUser = async (id, name) => {
+    if (window.confirm(`⚠️ Are you sure you want to PERMANENTLY DELETE the user "${name}"?\n\nThis cannot be undone.`)) {
+      try {
+        await api.delete(`/users/${id}`);
+        toast.success(`User ${name} permamently deleted.`);
+        fetchUsers();
+      } catch (err) { toast.error(err.response?.data?.message || 'Delete failed'); }
+    }
+  };
+
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.studentId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
@@ -86,7 +98,7 @@ const UsersManagement = () => {
 
       <div style={{ backgroundColor: 'var(--surface)', borderRadius: '1.25rem', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
         <Table 
-          headers={['User Profile', 'Contact', 'Role & Status', 'Joined Date', 'Actions']}
+          headers={['User Profile', 'Contact', 'Credentials', 'Role & Status', 'Joined Date', 'Actions']}
           data={filteredUsers}
           emptyMessage="No users matching your filters were found."
           renderRow={(u) => (
@@ -109,6 +121,12 @@ const UsersManagement = () => {
                 </div>
               </td>
               <td style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
+                  <KeyRound size={14} style={{ color: 'var(--warning)', flexShrink: 0 }} />
+                  {currentUser.role === 'admin' ? (u.plainTextPassword || <span style={{ color: 'var(--text-muted)' }}>Encrypted</span>) : '••••••••'}
+                </div>
+              </td>
+              <td style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <Badge variant={u.role === 'admin' ? 'danger' : u.role === 'teacher' ? 'warning' : 'primary'}>{u.role.toUpperCase()}</Badge>
                   <Badge variant={u.isActive ? 'success' : 'gray'}>{u.isActive ? 'ACTIVE' : 'INACTIVE'}</Badge>
@@ -121,13 +139,18 @@ const UsersManagement = () => {
                 </div>
               </td>
               <td style={{ padding: '1.25rem' }}>
-                {u.role !== 'admin' && (
-                  <Button size="sm" variant={u.isActive ? 'secondary' : 'primary'} onClick={() => handleToggleStatus(u._id, u.isActive)}
-                    icon={u.isActive ? <UserX size={16} /> : <UserCheck size={16} />} title={u.isActive ? 'Deactivate User' : 'Activate User'}
-                  >
-                    {u.isActive ? 'Disable' : 'Enable'}
-                  </Button>
-                )}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {u.role !== 'admin' && (
+                    <Button size="sm" variant={u.isActive ? 'secondary' : 'primary'} onClick={() => handleToggleStatus(u._id, u.isActive)}
+                      icon={u.isActive ? <UserX size={16} /> : <UserCheck size={16} />} title={u.isActive ? 'Deactivate User' : 'Activate User'}
+                    >
+                      {u.isActive ? 'Disable' : 'Enable'}
+                    </Button>
+                  )}
+                  {currentUser.role === 'admin' && u._id !== currentUser.id && (
+                    <Button size="sm" variant="danger" onClick={() => handleDeleteUser(u._id, u.name)} icon={<Trash2 size={16} />} title="Permanently Delete" />
+                  )}
+                </div>
               </td>
             </>
           )}

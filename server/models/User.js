@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: 6
   },
+  plainTextPassword: {
+    type: String,
+    default: null
+  },
   failedLoginAttempts: {
     type: Number,
     default: 0,

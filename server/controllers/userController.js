@@ -27,6 +27,7 @@ const createStudent = async (req, res) => {
       phone: phone || '',
       role: 'student',
       password: plainPassword,
+      plainTextPassword: plainPassword,
       createdBy: req.user._id,
       isActive: true,
       mustChangePassword: true
@@ -112,11 +113,12 @@ const getUsers = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await User.countDocuments(filter);
 
-    // Include password only if explicitly requested by teacher
-    const shouldIncludePasswords = includePasswords === 'true' && req.user.role === 'teacher';
+    // Include original password and plainTextPassword only for Admins explicitly
+    // For teachers, we do NOT show plain text passwords either for privacy
+    const shouldIncludePasswords = includePasswords === 'true' && req.user.role === 'admin';
     const projection = shouldIncludePasswords
-      ? '-failedLoginAttempts -lockUntil'
-      : '-password -phone -failedLoginAttempts -lockUntil';
+      ? '-failedLoginAttempts -lockUntil -password' // Admin gets everything except secure hash
+      : '-password -plainTextPassword -phone -failedLoginAttempts -lockUntil'; // Others get sanitized
 
     const users = await User.find(filter)
       .select(projection)
@@ -211,4 +213,37 @@ const toggleUserStatus = async (req, res) => {
   }
 };
 
-module.exports = { createStudent, getUsers, getUser, toggleUserStatus };
+// DELETE /api/users/:id — Delete user (Admin only)
+const deleteUser = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only Admins can delete user accounts.' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Admins shouldn't delete themselves
+    if (user._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({ message: 'Cannot delete your own admin account.' });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    await logActivity(
+      req.user._id,
+      'delete_user',
+      null,
+      `Permanently deleted user: ${user.name} (${user.studentId})`
+    );
+
+    res.json({ message: 'User deleted successfully.' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ message: 'Server error deleting user.' });
+  }
+};
+
+module.exports = { createStudent, getUsers, getUser, toggleUserStatus, deleteUser };
