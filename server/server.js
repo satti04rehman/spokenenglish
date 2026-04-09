@@ -118,6 +118,18 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Debug directory check
+app.get('/api/debug', (req, res) => {
+  const fs = require('fs');
+  const distPath = path.join(__dirname, '../client/dist');
+  try {
+    const files = fs.readdirSync(distPath);
+    res.json({ path: distPath, files });
+  } catch (err) {
+    res.json({ error: err.message, path: distPath });
+  }
+});
+
 // Serve React app for all other routes (SPA fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
