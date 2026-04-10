@@ -49,7 +49,7 @@ const StudentCredentials = () => {
       ...students.map(student => [
         student.name || 'Unknown',
         student.studentId,
-        student.password || 'N/A',
+        student.plainTextPassword || 'N/A',
         student.phone || 'N/A'
       ].join(','))
     ].join('\n');
@@ -139,7 +139,7 @@ const StudentCredentials = () => {
                 <td style={{ padding: '1.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', backgroundColor: 'var(--bg-secondary)', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', color: visiblePasswords[student._id] ? 'var(--danger)' : 'var(--text-light)' }}>
-                      {visiblePasswords[student._id] ? student.password || 'N/A' : '••••••••'}
+                      {visiblePasswords[student._id] ? student.plainTextPassword || 'N/A' : '••••••••'}
                     </div>
                     <button
                       onClick={() => togglePasswordVisibility(student._id)}
@@ -163,7 +163,7 @@ const StudentCredentials = () => {
                       <Copy size={16} />
                     </button>
                     <button
-                      onClick={() => copyToClipboard(student.password || '', 'Password')}
+                      onClick={() => copyToClipboard(student.plainTextPassword || '', 'Password')}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                       title="Copy Password"
                     >
