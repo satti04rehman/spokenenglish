@@ -97,10 +97,15 @@ const getUsers = async (req, res) => {
     if (status === 'active') filter.isActive = true;
     if (status === 'inactive') filter.isActive = false;
 
-    // Teacher can only see students they created
-    if (req.user.role === 'admin') {
+    // Admin-Teacher filtering:
+    // Regular admins (Teachers) only see students they created.
+    // The Super-Admin (studentId: 'admin') sees ALL students.
+    if (req.user.role === 'admin' && req.user.studentId !== 'admin') {
       filter.role = 'student';
       filter.createdBy = req.user._id;
+    } else if (req.user.role === 'admin' && req.user.studentId === 'admin') {
+      // Super-admin: Can filter by role if provided, otherwise sees all students by default
+      if (!role) filter.role = 'student';
     }
 
     if (search) {
@@ -183,13 +188,15 @@ const toggleUserStatus = async (req, res) => {
       return res.status(400).json({ message: 'Cannot change your own status.' });
     }
 
-    // Teacher can only toggle their own students
-    if (req.user.role === 'admin') {
+    // Admin-Teacher check:
+    // Regular admins (Teachers) can only toggle their own students.
+    // The Super-Admin can toggle anyone.
+    if (req.user.role === 'admin' && req.user.studentId !== 'admin') {
       if (user.role !== 'student') {
         return res.status(403).json({ message: 'Access denied.' });
       }
       if (!user.createdBy || user.createdBy.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ message: 'Access denied.' });
+        return res.status(403).json({ message: 'Access denied. You can only manage your own students.' });
       }
     }
 

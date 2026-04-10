@@ -147,10 +147,10 @@ const getClass = async (req, res) => {
       }
     }
 
-    // Teacher: must be the teacher
-    if (req.user.role === 'admin' &&
+    // Ownership check (Teachers only manage their own classes, Super Admin bypasses)
+    if (req.user.role === 'admin' && req.user.studentId !== 'admin' &&
         classItem.teacherId._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Access denied.' });
+      return res.status(403).json({ message: 'Access denied. You can only update your own classes.' });
     }
 
     res.json({ class: classItem });
