@@ -43,12 +43,12 @@ export const AuthProvider = ({ children }) => {
             const savedUser = localStorage.getItem('user');
             if (savedUser) setUser(JSON.parse(savedUser));
           }
-          // Suppress logging expected 401 errors silently
         }
-        setUser(null);
+      } else {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
+        setUser(null);
       }
       setLoading(false);
     };

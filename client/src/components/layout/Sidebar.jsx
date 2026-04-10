@@ -80,6 +80,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         { to: '/teacher/students', icon: Users, label: 'All Students' },
         { to: '/teacher/credentials', icon: Lock, label: 'Student Credentials' },
         { to: '/teacher/activity-logs', icon: Activity, label: 'Activity Logs' },
+        { to: '/change-password', icon: Lock, label: 'Change Password' },
       ];
     }
     if (user?.role === 'student') {
@@ -87,6 +88,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         { to: '/student/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { to: '/student/my-classes', icon: Video, label: 'My Classes' },
         { to: '/student/my-activity', icon: Activity, label: 'My Activity' },
+        { to: '/change-password', icon: Lock, label: 'Change Password' },
       ];
     }
     return [];
