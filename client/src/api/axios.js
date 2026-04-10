@@ -43,6 +43,9 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Check if this is an initial auth check (no auth token attempted)
+      const hasAuth = originalRequest.headers['Authorization'];
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -58,13 +61,19 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken');
 
       if (!refreshToken) {
-        // No refresh token, redirect to login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+        // No refresh token available
+        // If there was no auth header, this was just a check - silently reject
+        // If there was an auth header, we need to redirect to login
+        if (hasAuth) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
         }
+        isRefreshing = false;
+        failedQueue = [];
         return Promise.reject(error);
       }
 

@@ -26,11 +26,12 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
             setUser(null);
-          } else {
+          } else if (error.response?.status) {
             // Try to recover user from localStorage if possible
             const savedUser = localStorage.getItem('user');
             if (savedUser) setUser(JSON.parse(savedUser));
           }
+          // Suppress logging expected 401 errors silently
         }
       } else {
         setUser(null);
