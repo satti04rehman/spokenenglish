@@ -24,6 +24,16 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 <= Date.now() + 10000;
+  } catch (e) {
+    return true;
+  }
+};
+
 // Request Interceptor: add auth token
 api.interceptors.request.use(
   (config) => {
@@ -68,8 +78,8 @@ api.interceptors.response.use(
 
       const refreshToken = localStorage.getItem('refreshToken');
 
-      if (!refreshToken) {
-        // No refresh token available - clear auth and redirect
+      if (!refreshToken || isTokenExpired(refreshToken)) {
+        // No refresh token available or it's already expired locally - clear auth and redirect
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');

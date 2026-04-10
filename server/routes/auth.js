@@ -6,7 +6,7 @@ const authorize = require('../middleware/role');
 const { loginLimiter, passwordChangeLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
 
 router.post('/login', loginLimiter, login);
-router.post('/refresh', auth, refreshTokenLimiter, refreshAccessToken);
+router.post('/refresh', refreshTokenLimiter, refreshAccessToken);
 router.post('/change-password', auth, authorize('teacher', 'student', 'admin'), passwordChangeLimiter, changePassword);
 router.get('/me', auth, getMe);
 router.post('/logout', auth, logout);

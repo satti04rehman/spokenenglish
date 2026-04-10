@@ -10,9 +10,21 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const isTokenExpired = (token) => {
+      if (!token) return true;
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp * 1000 <= Date.now() + 10000;
+      } catch (e) {
+        return true;
+      }
+    };
+
     const initAuth = async () => {
       const accessToken = localStorage.getItem('accessToken');
-      if (accessToken) {
+      
+      // Don't log expected 401s if token is already expired locally
+      if (accessToken && !isTokenExpired(accessToken)) {
         try {
           // Always verify with backend, don't trust stale localStorage users
           const res = await api.get('/auth/me');
@@ -33,28 +45,15 @@ export const AuthProvider = ({ children }) => {
           }
           // Suppress logging expected 401 errors silently
         }
-      } else {
         setUser(null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
       }
       setLoading(false);
     };
 
-    // Suppress console errors during initial auth check
-    const originalError = console.error;
-    console.error = (...args) => {
-      // Filter out expected 401 errors from console
-      if (args[0]?.response?.status === 401 &&
-          (args[0]?.config?.url === '/auth/me' || args[0]?.config?.url === '/auth/refresh')) {
-        return;
-      }
-      originalError.apply(console, args);
-    };
-
     initAuth();
-
-    return () => {
-      console.error = originalError;
-    };
   }, []);
 
   const login = async (studentId, password) => {
