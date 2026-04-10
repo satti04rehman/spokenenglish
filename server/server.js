@@ -65,10 +65,11 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://meet.jit.si", "https://*.jitsi.net"],
       frameSrc: ["'self'", "https://meet.jit.si", "https://*.jitsi.net"],
-      connectSrc: ["'self'", "https://meet.jit.si", "wss://meet.jit.si", "https://*.jitsi.net", "wss://*.jitsi.net"],
+      connectSrc: ["'self'", "https://meet.jit.si", "wss://meet.jit.si", "https://*.jitsi.net", "wss://*.jitsi.net", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://meet.jit.si"],
       mediaSrc: ["'self'", "https://meet.jit.si"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
     }
   },
   hsts: {
