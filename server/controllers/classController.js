@@ -82,7 +82,7 @@ const getClasses = async (req, res) => {
     }
     // -------------------------------------------------
 
-    if (req.user.role === 'teacher') {
+    if (req.user.role === 'admin') {
       filter.teacherId = req.user._id;
     } else if (req.user.role === 'student') {
       // Only return classes the student is enrolled in
@@ -105,7 +105,7 @@ const getClasses = async (req, res) => {
     // For students and teachers, hide the jitsi room name in list view (only reveal when joining)
     const formattedClasses = classes.map(c => {
       const classObj = c.toObject();
-      if (req.user.role === 'student' || req.user.role === 'teacher') {
+      if (req.user.role === 'student' || req.user.role === 'admin') {
         delete classObj.jitsiRoomName;
       }
       return classObj;
@@ -148,7 +148,7 @@ const getClass = async (req, res) => {
     }
 
     // Teacher: must be the teacher
-    if (req.user.role === 'teacher' &&
+    if (req.user.role === 'admin' &&
         classItem.teacherId._id.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied.' });
     }
@@ -169,13 +169,13 @@ const updateClass = async (req, res) => {
       return res.status(404).json({ message: 'Class not found.' });
     }
 
-    if (req.user.role === 'teacher' &&
+    if (req.user.role === 'admin' &&
         classItem.teacherId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied.' });
     }
 
     // Teacher can have only one live class at a time.
-    if (status === 'live' && req.user.role === 'teacher') {
+    if (status === 'live' && req.user.role === 'admin') {
       const otherLive = await Class.findOne({
         teacherId: req.user._id,
         status: 'live',
@@ -227,7 +227,7 @@ const joinClass = async (req, res) => {
 
       // Generate unique session ID for tracking this student's session
       sessionId = `${classItem._id}-${req.user._id}-${Date.now()}`;
-    } else if (req.user.role === 'teacher' &&
+    } else if (req.user.role === 'admin' &&
                classItem.teacherId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied.' });
     }

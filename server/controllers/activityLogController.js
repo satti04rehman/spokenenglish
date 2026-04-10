@@ -25,7 +25,7 @@ const getActivityLogs = async (req, res) => {
     }
 
     // Teacher scope: only see activities for themselves + their students
-    if (req.user.role === 'teacher') {
+    if (req.user.role === 'admin') {
       const studentUsers = await User.find({ role: 'student', createdBy: req.user._id }).select('_id');
       const allowedUserIds = [req.user._id, ...studentUsers.map(u => u._id)];
       const allowedUserIdStrings = new Set(allowedUserIds.map(id => id.toString()));
@@ -97,7 +97,7 @@ const getActivityStats = async (req, res) => {
 
     // Teacher scope: only see activities for themselves + their students
     let userScope = {};
-    if (req.user.role === 'teacher') {
+    if (req.user.role === 'admin') {
       const studentUsers = await User.find({ role: 'student', createdBy: req.user._id }).select('_id');
       const allowedUserIds = [req.user._id, ...studentUsers.map(u => u._id)];
       userScope = { userId: { $in: allowedUserIds } };

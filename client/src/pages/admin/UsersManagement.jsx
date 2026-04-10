@@ -128,7 +128,7 @@ const UsersManagement = () => {
               </td>
               <td style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <Badge variant={u.role === 'admin' ? 'danger' : u.role === 'teacher' ? 'warning' : 'primary'}>{u.role.toUpperCase()}</Badge>
+                  <Badge variant={u.role === 'admin' ? 'danger' : u.role === 'admin' ? 'warning' : 'primary'}>{u.role.toUpperCase()}</Badge>
                   <Badge variant={u.isActive ? 'success' : 'gray'}>{u.isActive ? 'ACTIVE' : 'INACTIVE'}</Badge>
                 </div>
               </td>

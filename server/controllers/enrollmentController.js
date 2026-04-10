@@ -18,7 +18,7 @@ const enrollStudents = async (req, res) => {
     }
 
     // Verify teacher owns this class
-    if (req.user.role === 'teacher' &&
+    if (req.user.role === 'admin' &&
         classItem.teacherId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied.' });
     }
@@ -77,7 +77,7 @@ const getEnrollments = async (req, res) => {
       return res.status(404).json({ message: 'Class not found.' });
     }
 
-    if (req.user.role === 'teacher' &&
+    if (req.user.role === 'admin' &&
         classItem.teacherId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied.' });
     }
@@ -102,7 +102,7 @@ const removeEnrollment = async (req, res) => {
       return res.status(404).json({ message: 'Enrollment not found.' });
     }
 
-    if (req.user.role === 'teacher' &&
+    if (req.user.role === 'admin' &&
         enrollment.classId.teacherId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied.' });
     }

@@ -101,7 +101,7 @@ const ClassroomChat = ({ classId, user, isOpen, onClose }) => {
         
         {messages.map((msg) => {
           const isMine = msg.senderId === user.studentId;
-          const isTeacher = msg.role === 'teacher' || msg.role === 'admin';
+          const isTeacher = msg.role === 'admin' || msg.role === 'admin';
           
           return (
             <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start' }}>

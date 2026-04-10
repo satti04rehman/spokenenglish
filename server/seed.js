@@ -33,7 +33,7 @@ const seedDB = async () => {
       studentId: 'TEACH-001',
       name: 'teacher01',
       phone: '1111111111',
-      role: 'teacher',
+      role: 'admin',
       password: 'admin123',
       createdBy: admin._id,
       isActive: true,

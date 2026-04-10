@@ -98,7 +98,7 @@ const getUsers = async (req, res) => {
     if (status === 'inactive') filter.isActive = false;
 
     // Teacher can only see students they created
-    if (req.user.role === 'teacher') {
+    if (req.user.role === 'admin') {
       filter.role = 'student';
       filter.createdBy = req.user._id;
     }
@@ -155,7 +155,7 @@ const getUser = async (req, res) => {
     }
 
     // Teacher can only view their own students
-    if (req.user.role === 'teacher') {
+    if (req.user.role === 'admin') {
       if (user.role !== 'student') {
         return res.status(403).json({ message: 'Access denied.' });
       }
@@ -184,7 +184,7 @@ const toggleUserStatus = async (req, res) => {
     }
 
     // Teacher can only toggle their own students
-    if (req.user.role === 'teacher') {
+    if (req.user.role === 'admin') {
       if (user.role !== 'student') {
         return res.status(403).json({ message: 'Access denied.' });
       }

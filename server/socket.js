@@ -20,7 +20,7 @@ const setupSocket = (server) => {
       // Everyone joins the main class room for global broadcasts from teachers
       socket.join(classId);
 
-      if (role === 'teacher' || role === 'admin') {
+      if (role === 'admin' || role === 'admin') {
         // Teachers join a private room to receive student messages securely
         socket.join(`${classId}_teachers`);
       } else {
@@ -53,13 +53,13 @@ const setupSocket = (server) => {
 
     // Handle teacher sending a message -> To all or specific student
     socket.on('teacher_send_message', (data) => {
-      if (!socket.user || (socket.user.role !== 'teacher' && socket.user.role !== 'admin')) return;
+      if (!socket.user || (socket.user.role !== 'admin' && socket.user.role !== 'admin')) return;
 
       const payload = {
         id: Date.now() + Math.random().toString(),
         senderId: socket.user.studentId,
         senderName: socket.user.userName,
-        role: 'teacher',
+        role: 'admin',
         text: data.text,
         timestamp: new Date().toISOString(),
         targetStudentId: data.targetStudentId || 'all'

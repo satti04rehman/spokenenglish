@@ -31,28 +31,28 @@ router.get('/status/:classId/:requestType', authorize('student'), checkPermissio
 // ============ TEACHER ENDPOINTS ============
 
 // Teacher gets all pending/approved requests for a class (PAGINATED)
-router.get('/requests/:classId', authorize('admin', 'teacher'), getPendingRequests);
+router.get('/requests/:classId', authorize('admin', 'admin'), getPendingRequests);
 
 // Teacher approves a request (WITH SPEAKER LIMIT CHECK)
-router.patch('/requests/:requestId/approve', authorize('admin', 'teacher'), approveRequest);
+router.patch('/requests/:requestId/approve', authorize('admin', 'admin'), approveRequest);
 
 // Teacher denies a request
-router.patch('/requests/:requestId/deny', authorize('admin', 'teacher'), denyRequest);
+router.patch('/requests/:requestId/deny', authorize('admin', 'admin'), denyRequest);
 
 // Teacher revokes an approved permission
-router.patch('/requests/:requestId/revoke', authorize('admin', 'teacher'), revokePermission);
+router.patch('/requests/:requestId/revoke', authorize('admin', 'admin'), revokePermission);
 
 // ============ NEW ENDPOINTS: CLASS SETTINGS ============
 
 // Teacher updates class permission settings (enable/disable mic, camera, screen)
-router.patch('/classes/:classId/permission-settings', authorize('admin', 'teacher'), updatePermissionSettings);
+router.patch('/classes/:classId/permission-settings', authorize('admin', 'admin'), updatePermissionSettings);
 
 // Teacher sets max concurrent speakers for class
-router.patch('/classes/:classId/speaker-limit', authorize('admin', 'teacher'), setSpeakerLimit);
+router.patch('/classes/:classId/speaker-limit', authorize('admin', 'admin'), setSpeakerLimit);
 
 // ============ NEW ENDPOINTS: ANALYTICS ============
 
 // Teacher views permission analytics for class
-router.get('/analytics/:classId', authorize('admin', 'teacher'), getAnalytics);
+router.get('/analytics/:classId', authorize('admin', 'admin'), getAnalytics);
 
 module.exports = router;

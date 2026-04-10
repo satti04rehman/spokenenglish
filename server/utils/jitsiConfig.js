@@ -42,7 +42,7 @@ const getJitsiConfig = (role, userName, roomName) => {
     }
   };
 
-  if (role === 'teacher' || role === 'admin') {
+  if (role === 'admin' || role === 'admin') {
     // Teacher gets full controls
     baseConfig.configOverwrite.startWithAudioMuted = false;
     baseConfig.configOverwrite.startWithVideoMuted = false;

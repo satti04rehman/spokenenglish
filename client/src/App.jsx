@@ -31,20 +31,20 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/change-password" element={
-            <ProtectedRoute allowedRoles={['teacher']}>
+            <ProtectedRoute allowedRoles={['admin', 'student']}>
               <ChangePassword />
             </ProtectedRoute>
           } />
           
           {/* Live Video Room */}
           <Route path="/jitsi/:id" element={
-            <ProtectedRoute allowedRoles={['teacher', 'student']}>
+            <ProtectedRoute allowedRoles={['admin', 'student']}>
               <JitsiClassRoom />
             </ProtectedRoute>
           } />
 
           {/* Teacher/Platform Admin Routes */}
-          <Route path="/teacher" element={<ProtectedRoute allowedRoles={['teacher']} />}>
+          <Route path="/teacher" element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route element={<DashboardLayout />}>
               <Route path="dashboard" element={<TeacherDashboard />} />
               <Route path="students" element={<UsersManagement />} />

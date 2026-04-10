@@ -7,7 +7,7 @@ const { loginLimiter, passwordChangeLimiter, refreshTokenLimiter } = require('..
 
 router.post('/login', loginLimiter, login);
 router.post('/refresh', refreshTokenLimiter, refreshAccessToken);
-router.post('/change-password', auth, authorize('teacher', 'student', 'admin'), passwordChangeLimiter, changePassword);
+router.post('/change-password', auth, authorize('admin', 'student', 'admin'), passwordChangeLimiter, changePassword);
 router.get('/me', auth, getMe);
 router.post('/logout', auth, logout);
 

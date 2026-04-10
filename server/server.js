@@ -29,7 +29,7 @@ const seedOnBoot = async () => {
         studentId: 'admin',
         name: 'Admin',
         phone: '0000',
-        role: 'teacher',
+        role: 'admin',
         password: 'admin123',
         isActive: true,
         mustChangePassword: false,
