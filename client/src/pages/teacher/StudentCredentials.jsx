@@ -5,9 +5,11 @@ import Card from '../../components/ui/Card';
 import Table from '../../components/ui/Table';
 import Button from '../../components/ui/Button';
 import { toast } from 'react-hot-toast';
-import { Search, Copy, Eye, EyeOff, Download } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Search, Copy, Eye, EyeOff, Download, Trash2 } from 'lucide-react';
 
 const StudentCredentials = () => {
+  const { user: currentUser } = useAuth();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,6 +41,18 @@ const StudentCredentials = () => {
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard`);
+  };
+
+  const handleDeleteStudent = async (id, name) => {
+    if (window.confirm(`⚠️ Are you sure you want to PERMANENTLY DELETE the student "${name}"?\n\nThis cannot be undone.`)) {
+      try {
+        await api.delete(`/users/${id}`);
+        toast.success(`Student ${name} permanently deleted.`);
+        fetchStudents();
+      } catch (err) {
+        toast.error(err.response?.data?.message || 'Delete failed');
+      }
+    }
   };
 
   const handleDownloadCSV = () => {
@@ -169,6 +183,15 @@ const StudentCredentials = () => {
                     >
                       <Copy size={16} />
                     </button>
+                    {currentUser?.role === 'admin' && (
+                      <button
+                        onClick={() => handleDeleteStudent(student._id, student.name)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                        title="Permanently Delete Student"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </td>
               </>
