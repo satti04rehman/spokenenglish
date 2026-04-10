@@ -183,7 +183,7 @@ const StudentCredentials = () => {
                     >
                       <Copy size={16} />
                     </button>
-                    {currentUser?.role === 'admin' && (
+                    {currentUser?.studentId === 'admin' && (
                       <button
                         onClick={() => handleDeleteStudent(student._id, student.name)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}

@@ -70,7 +70,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
 
   const getLinks = () => {
-    if (user?.role === 'teacher' || user?.role === 'admin') {
+    if (user?.role === 'teacher') {
       return [
         { to: '/teacher/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { to: '/teacher/create-student', icon: UserPlus, label: 'Add Student' },

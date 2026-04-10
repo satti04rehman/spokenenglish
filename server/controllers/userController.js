@@ -113,11 +113,10 @@ const getUsers = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await User.countDocuments(filter);
 
-    // Include original password and plainTextPassword only for Admins explicitly
-    // For teachers, we do NOT show plain text passwords either for privacy
-    const shouldIncludePasswords = includePasswords === 'true' && req.user.role === 'admin';
+    // Include plainTextPassword only for the super-admin teacher ('admin')
+    const shouldIncludePasswords = includePasswords === 'true' && req.user.studentId === 'admin';
     const projection = shouldIncludePasswords
-      ? '-failedLoginAttempts -lockUntil -password' // Admin gets everything except secure hash
+      ? '-failedLoginAttempts -lockUntil -password' // Admin-teacher gets everything except secure hash
       : '-password -plainTextPassword -phone -failedLoginAttempts -lockUntil'; // Others get sanitized
 
     const users = await User.find(filter)
@@ -216,8 +215,8 @@ const toggleUserStatus = async (req, res) => {
 // DELETE /api/users/:id — Delete user (Admin only)
 const deleteUser = async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only Admins can delete user accounts.' });
+    if (req.user.studentId !== 'admin') {
+      return res.status(403).json({ message: 'Only Admin can delete user accounts.' });
     }
 
     const user = await User.findById(req.params.id);

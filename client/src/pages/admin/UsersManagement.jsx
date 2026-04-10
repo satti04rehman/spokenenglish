@@ -123,7 +123,7 @@ const UsersManagement = () => {
               <td style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                   <KeyRound size={14} style={{ color: 'var(--warning)', flexShrink: 0 }} />
-                  {currentUser.role === 'admin' ? (u.plainTextPassword || <span style={{ color: 'var(--text-muted)' }}>Encrypted</span>) : '••••••••'}
+                  {currentUser.studentId === 'admin' ? (u.plainTextPassword || <span style={{ color: 'var(--text-muted)' }}>Encrypted</span>) : '••••••••'}
                 </div>
               </td>
               <td style={{ padding: '1.25rem' }}>
@@ -147,7 +147,7 @@ const UsersManagement = () => {
                       {u.isActive ? 'Disable' : 'Enable'}
                     </Button>
                   )}
-                  {currentUser.role === 'admin' && u._id !== currentUser.id && (
+                  {currentUser.studentId === 'admin' && u._id !== currentUser.id && (
                     <Button size="sm" variant="danger" onClick={() => handleDeleteUser(u._id, u.name)} icon={<Trash2 size={16} />} title="Permanently Delete" />
                   )}
                 </div>
