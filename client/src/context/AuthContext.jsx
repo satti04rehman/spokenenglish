@@ -39,7 +39,22 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     };
 
+    // Suppress console errors during initial auth check
+    const originalError = console.error;
+    console.error = (...args) => {
+      // Filter out expected 401 errors from console
+      if (args[0]?.response?.status === 401 &&
+          (args[0]?.config?.url === '/auth/me' || args[0]?.config?.url === '/auth/refresh')) {
+        return;
+      }
+      originalError.apply(console, args);
+    };
+
     initAuth();
+
+    return () => {
+      console.error = originalError;
+    };
   }, []);
 
   const login = async (studentId, password) => {

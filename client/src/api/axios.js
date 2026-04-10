@@ -45,6 +45,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       // Check if this is an initial auth check (no auth token attempted)
       const hasAuth = originalRequest.headers['Authorization'];
+      const url = originalRequest.url;
+
+      // Silently ignore 401 on auth checks (initial /auth/me and /auth/refresh without token)
+      if ((url === '/auth/me' || url === '/auth/refresh') && !hasAuth) {
+        // Create error but mark as silent to prevent console logging
+        error._silent = true;
+        return Promise.reject(error);
+      }
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -61,19 +69,16 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken');
 
       if (!refreshToken) {
-        // No refresh token available
-        // If there was no auth header, this was just a check - silently reject
-        // If there was an auth header, we need to redirect to login
-        if (hasAuth) {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login';
-          }
-        }
+        // No refresh token available - clear auth and redirect
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         isRefreshing = false;
         failedQueue = [];
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+        error._silent = true;
         return Promise.reject(error);
       }
 
