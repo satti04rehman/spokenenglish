@@ -7,11 +7,11 @@ const authorize = require('../middleware/role');
 // All routes require authentication
 router.use(auth);
 
-router.post('/', authorize('admin', 'admin'), createClass);
-router.get('/', authorize('admin', 'admin', 'student'), getClasses);
-router.get('/:id', authorize('admin', 'admin', 'student'), getClass);
-router.patch('/:id', authorize('admin', 'admin'), updateClass);
-router.get('/:id/join', authorize('admin', 'admin', 'student'), joinClass);
-router.post('/:id/leave', authorize('admin', 'admin', 'student'), leaveClass);
+router.post('/', authorize('admin'), createClass);
+router.get('/', authorize('admin'), getClasses);
+router.get('/:id', authorize('admin'), getClass);
+router.patch('/:id', authorize('admin'), updateClass);
+router.get('/:id/join', authorize('admin'), joinClass);
+router.post('/:id/leave', authorize('admin'), leaveClass);
 
 module.exports = router;

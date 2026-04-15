@@ -6,8 +6,8 @@ const authorize = require('../middleware/role');
 
 router.use(auth);
 
-router.post('/', authorize('admin', 'admin'), enrollStudents);
-router.get('/:classId', authorize('admin', 'admin'), getEnrollments);
-router.delete('/:id', authorize('admin', 'admin'), removeEnrollment);
+router.post('/', authorize('admin'), enrollStudents);
+router.get('/:classId', authorize('admin'), getEnrollments);
+router.delete('/:id', authorize('admin'), removeEnrollment);
 
 module.exports = router;
