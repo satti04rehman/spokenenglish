@@ -31,7 +31,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/change-password" element={
-            <ProtectedRoute allowedRoles={['admin', 'student']}>
+            <ProtectedRoute allowedRoles={['admin']}>
               <ChangePassword />
             </ProtectedRoute>
           } />

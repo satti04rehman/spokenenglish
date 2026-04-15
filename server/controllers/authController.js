@@ -174,6 +174,10 @@ const logout = async (req, res) => {
 // POST /api/auth/change-password
 const changePassword = async (req, res) => {
   try {
+    if (req.user.role === 'student') {
+      return res.status(403).json({ message: 'Students are not allowed to change their passwords.' });
+    }
+
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {

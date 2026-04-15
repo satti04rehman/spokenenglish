@@ -12,7 +12,7 @@ const Login = () => {
 
   // Auto redirect if already logged in
   if (user) {
-    if (user.mustChangePassword) return <Navigate to="/change-password" />;
+    if (user.mustChangePassword && user.role === 'admin') return <Navigate to="/change-password" />;
     if (user.role === 'admin') return <Navigate to="/teacher/dashboard" />;
     if (user.role === 'student') return <Navigate to="/student/dashboard" />;
     // If user exists but role is not teacher/student, don't just loop to /login
@@ -27,7 +27,7 @@ const Login = () => {
       
       if (result.success) {
         const u = result.user;
-        if (u.mustChangePassword) navigate('/change-password');
+        if (u.mustChangePassword && u.role === 'admin') navigate('/change-password');
         else if (u.role === 'admin') navigate('/teacher/dashboard');
         else if (u.role === 'student') navigate('/student/dashboard');
       }

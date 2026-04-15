@@ -30,7 +30,7 @@ const createStudent = async (req, res) => {
       plainTextPassword: plainPassword,
       createdBy: req.user._id,
       isActive: true,
-      mustChangePassword: true
+      mustChangePassword: false
     });
 
     await logActivity(req.user._id, 'create_student', null, `Created student: ${finalStudentId}`);

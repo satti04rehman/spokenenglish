@@ -168,25 +168,27 @@ const Topbar = ({ onMenuToggle }) => {
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>{user?.studentId}</p>
                   </div>
                   
-                  <Link 
-                    to="/change-password" 
-                    onClick={() => setShowProfileMenu(false)}
-                    className="menu-item-hover"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.625rem 0.75rem',
-                      borderRadius: '0.5rem',
-                      color: 'var(--text-secondary)',
-                      textDecoration: 'none',
-                      fontSize: '0.875rem',
-                      transition: 'var(--transition-fast)'
-                    }}
-                  >
-                    <Key size={16} />
-                    Change Password
-                  </Link>
+                  {user?.role === 'admin' && (
+                    <Link 
+                      to="/change-password" 
+                      onClick={() => setShowProfileMenu(false)}
+                      className="menu-item-hover"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        padding: '0.625rem 0.75rem',
+                        borderRadius: '0.5rem',
+                        color: 'var(--text-secondary)',
+                        textDecoration: 'none',
+                        fontSize: '0.875rem',
+                        transition: 'var(--transition-fast)'
+                      }}
+                    >
+                      <Key size={16} />
+                      Change Password
+                    </Link>
+                  )}
 
                   <button 
                     onClick={logout}

@@ -88,7 +88,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         { to: '/student/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { to: '/student/my-classes', icon: Video, label: 'My Classes' },
         { to: '/student/my-activity', icon: Activity, label: 'My Activity' },
-        { to: '/change-password', icon: Lock, label: 'Change Password' },
       ];
     }
     return [];
