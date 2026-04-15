@@ -7,6 +7,13 @@ import Badge from '../../components/ui/Badge';
 import { useNavigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
+import { io } from 'socket.io-client';
+
+// Resolve backend socket URL
+const SOCKET_URL = import.meta.env.PROD
+  ? window.location.origin
+  : (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000');
+
 import { 
   Calendar, 
   Clock, 
@@ -36,7 +43,24 @@ const StudentDashboard = () => {
       }
     };
     fetchClasses();
-  }, []);
+
+    // Listen for real-time enrollment updates
+    const socket = io(SOCKET_URL);
+    if (user?._id) {
+      socket.on(`enrollment_added_${user._id}`, () => fetchClasses());
+      socket.on(`enrollment_removed_${user._id}`, () => fetchClasses());
+    }
+
+    // Also listen for class live status changes globally
+    socket.on('class_live', ({ classId }) => {
+      setClasses(prev => prev.map(c => c._id === classId ? { ...c, status: 'live' } : c));
+    });
+    socket.on('class_ended', ({ classId }) => {
+      setClasses(prev => prev.map(c => c._id === classId ? { ...c, status: 'completed' } : c));
+    });
+
+    return () => socket.disconnect();
+  }, [user?._id]);
 
   const sortedClasses = [...classes].sort((a,b) => new Date(a.schedule) - new Date(b.schedule));
   const upcoming = sortedClasses.filter(c => c.status !== 'completed');

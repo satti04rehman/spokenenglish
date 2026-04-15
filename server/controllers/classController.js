@@ -88,7 +88,9 @@ const getClasses = async (req, res) => {
     } else if (req.user.role === 'student') {
       // Only return classes the student is enrolled in
       const enrollments = await Enrollment.find({ studentId: req.user._id });
+      console.log('DEBUG: enrollments for student', req.user._id, '->', enrollments);
       const classIds = enrollments.map(e => e.classId);
+      console.log('DEBUG: matched classIds ->', classIds);
       filter._id = { $in: classIds };
     }
 

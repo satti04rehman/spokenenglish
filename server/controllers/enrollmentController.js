@@ -2,6 +2,7 @@ const Enrollment = require('../models/Enrollment');
 const User = require('../models/User');
 const Class = require('../models/Class');
 const logActivity = require('../middleware/activityLogger');
+const { getIO } = require('../socket');
 
 // POST /api/enrollments — Enroll student(s) in a class
 const enrollStudents = async (req, res) => {
@@ -50,6 +51,14 @@ const enrollStudents = async (req, res) => {
 
     await logActivity(req.user._id, 'enroll_students', classId,
       `Enrolled ${results.length} student(s) in class: ${classItem.title}`);
+
+    // Emit real-time event to update student dashboards without refreshing
+    const io = getIO();
+    if (io && results.length > 0) {
+      ids.forEach(sid => {
+        io.emit(`enrollment_added_${sid}`, { classId: classItem._id.toString() });
+      });
+    }
 
     res.status(201).json({
       message: `${results.length} student(s) enrolled successfully.`,
@@ -111,6 +120,11 @@ const removeEnrollment = async (req, res) => {
 
     await logActivity(req.user._id, 'remove_enrollment', enrollment.classId._id,
       'Removed student from class');
+
+    const io = getIO();
+    if (io) {
+      io.emit(`enrollment_removed_${enrollment.studentId}`, { classId: enrollment.classId._id.toString() });
+    }
 
     res.json({ message: 'Student removed from class successfully.' });
   } catch (error) {

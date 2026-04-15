@@ -7,6 +7,7 @@ import Badge from '../../components/ui/Badge';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { io } from 'socket.io-client';
+import { useAuth } from '../../context/AuthContext';
 
 // Resolve backend socket URL (same pattern as ClassroomChat)
 const SOCKET_URL = import.meta.env.PROD
@@ -14,6 +15,7 @@ const SOCKET_URL = import.meta.env.PROD
   : (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000');
 
 const MyClasses = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,12 @@ const MyClasses = () => {
     // Server emits 'class_live' when teacher starts a class and 'class_ended' when they end it.
     const socket = io(SOCKET_URL);
 
+    // Listen to personal enrollment updates
+    if (user?._id) {
+      socket.on(`enrollment_added_${user._id}`, () => fetchClasses());
+      socket.on(`enrollment_removed_${user._id}`, () => fetchClasses());
+    }
+
     socket.on('class_live', ({ classId, title, teacherName }) => {
       setClasses(prev => {
         const updated = prev.map(c =>
@@ -55,7 +63,7 @@ const MyClasses = () => {
     });
 
     return () => socket.disconnect();
-  }, []);
+  }, [user?._id]);
 
   if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
 
