@@ -70,7 +70,7 @@ const JitsiClassRoom = () => {
 
       api.addListener('readyToClose', () => {
         logClassExit().then(() => {
-          if (user?.role === 'admin' || user?.role === 'admin') navigate('/teacher/dashboard');
+          if (user?.role === 'admin') navigate('/teacher/dashboard');
           else navigate('/student/dashboard');
         });
       });
@@ -117,7 +117,7 @@ const JitsiClassRoom = () => {
         <div className="jitsi-toolbar-left">
           <Button size="sm" variant="danger" onClick={() => {
             logClassExit().then(() => {
-                if (user?.role === 'admin' || user?.role === 'admin') navigate('/teacher/dashboard');
+                if (user?.role === 'admin') navigate('/teacher/dashboard');
                 else navigate('/student/dashboard');
             });
           }}>← Leave</Button>
@@ -129,7 +129,7 @@ const JitsiClassRoom = () => {
               🔇 Muted by default · Raise Hand to speak
             </span>
           )}
-          {(user.role === 'admin' || user.role === 'admin') && (
+          {user.role === 'admin' && (
             <span className="jitsi-role-label" style={{ color: '#6ee7b7', background: 'rgba(110,231,183,0.1)' }}>
               🎙️ You are the host
             </span>
@@ -181,7 +181,7 @@ const JitsiClassRoom = () => {
 
       {/* Permission Panels */}
       {user?.role === 'student' && <PermissionRequestPanel classId={id} isVisible={true} />}
-      {(user?.role === 'admin' || user?.role === 'admin') && <TeacherPermissionPanel classId={id} isVisible={true} />}
+      {user?.role === 'admin' && <TeacherPermissionPanel classId={id} isVisible={true} />}
     </div>
   );
 };

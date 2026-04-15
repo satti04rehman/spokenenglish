@@ -42,7 +42,8 @@ const getJitsiConfig = (role, userName, roomName) => {
     }
   };
 
-  if (role === 'admin' || role === 'admin') {
+  // Fix: was `role === 'admin' || role === 'admin'` (duplicate) — now just `role === 'admin'`
+  if (role === 'admin') {
     // Teacher gets full controls
     baseConfig.configOverwrite.startWithAudioMuted = false;
     baseConfig.configOverwrite.startWithVideoMuted = false;
@@ -56,7 +57,7 @@ const getJitsiConfig = (role, userName, roomName) => {
     // Student gets heavily restricted controls - absolutely no access
     baseConfig.configOverwrite.startWithAudioMuted = true;
     baseConfig.configOverwrite.startWithVideoMuted = true;
-    
+
     // Strict permissions locking down any ability to alter the call
     baseConfig.configOverwrite.disableModeratorIndicator = true;
     baseConfig.configOverwrite.disableRemoteMute = true;

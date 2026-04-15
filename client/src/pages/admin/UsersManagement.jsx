@@ -88,7 +88,6 @@ const UsersManagement = () => {
               style={{ padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)', backgroundColor: 'var(--surface)', fontSize: '0.9rem', color: 'var(--text-secondary)', cursor: 'pointer' }}
             >
               <option value="all">All Roles</option>
-              <option value="teacher">Teachers</option>
               <option value="student">Students</option>
               <option value="admin">Admins</option>
             </select>
@@ -128,7 +127,7 @@ const UsersManagement = () => {
               </td>
               <td style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <Badge variant={u.role === 'admin' ? 'danger' : u.role === 'admin' ? 'warning' : 'primary'}>{u.role.toUpperCase()}</Badge>
+                  <Badge variant={u.role === 'admin' ? 'danger' : 'primary'}>{u.role.toUpperCase()}</Badge>
                   <Badge variant={u.isActive ? 'success' : 'gray'}>{u.isActive ? 'ACTIVE' : 'INACTIVE'}</Badge>
                 </div>
               </td>

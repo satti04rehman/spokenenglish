@@ -8,7 +8,6 @@ const LOCK_DURATION_MS = Number(process.env.LOCK_DURATION_MS || 10 * 60 * 1000);
 
 const isPasswordAcceptable = (password) => {
   // Minimum length + at least one letter + at least one number.
-  // (We keep this intentionally compatible with existing seeded passwords.)
   return typeof password === 'string' &&
     password.length >= 6 &&
     /[A-Za-z]/.test(password) &&
@@ -24,13 +23,8 @@ const login = async (req, res) => {
       return res.status(400).json({ message: 'Student ID and password are required.' });
     }
 
-    // Find user by studentId or name (for admin/teacher)
-    const user = await User.findOne({
-      $or: [
-        { studentId: studentId },
-        { name: studentId }
-      ]
-    });
+    // Fix #11: Only search by studentId — names are NOT unique and caused wrong-user matches
+    const user = await User.findOne({ studentId: studentId });
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials.' });
@@ -177,8 +171,6 @@ const logout = async (req, res) => {
   }
 };
 
-// Continue with the rest...
-
 // POST /api/auth/change-password
 const changePassword = async (req, res) => {
   try {
@@ -204,6 +196,10 @@ const changePassword = async (req, res) => {
     user.mustChangePassword = false;
     user.failedLoginAttempts = 0;
     user.lockUntil = null;
+
+    // Fix #4: Clear the stored plain-text password once student sets their own password
+    user.plainTextPassword = null;
+
     await user.save();
 
     await logActivity(user._id, 'password_change', null, 'User changed password');

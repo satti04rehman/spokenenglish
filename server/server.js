@@ -162,7 +162,7 @@ app.use((err, req, res, next) => {
 });
 
 const http = require('http');
-const setupSocket = require('./socket');
+const { setupSocket } = require('./socket');
 const server = http.createServer(app);
 setupSocket(server);
 

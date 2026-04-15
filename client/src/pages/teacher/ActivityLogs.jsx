@@ -196,7 +196,7 @@ const ActivityLogs = () => {
                     <td style={{ padding: '1.25rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', backgroundColor: 'var(--bg-secondary)', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', color: visiblePasswords[student._id] ? 'var(--danger)' : 'var(--text-light)' }}>
-                          {visiblePasswords[student._id] ? student.password || 'N/A' : '••••••••'}
+                          {visiblePasswords[student._id] ? student.plainTextPassword || 'N/A (changed)' : '••••••••'}
                         </div>
                         <button
                           onClick={() => togglePasswordVisibility(student._id)}
@@ -220,7 +220,7 @@ const ActivityLogs = () => {
                           <Copy size={16} />
                         </button>
                         <button
-                          onClick={() => copyToClipboard(student.password || '', 'Password')}
+                          onClick={() => copyToClipboard(student.plainTextPassword || '', 'Password')}
                           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', padding: '0.5rem' }}
                           title="Copy Password"
                         >

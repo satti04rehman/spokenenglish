@@ -3,6 +3,7 @@ const Class = require('../models/Class');
 const Enrollment = require('../models/Enrollment');
 const { generateRoomName, getJitsiConfig } = require('../utils/jitsiConfig');
 const logActivity = require('../middleware/activityLogger');
+const { getIO } = require('../socket');
 
 // POST /api/classes — Create class (Teacher/Admin)
 const createClass = async (req, res) => {
@@ -90,7 +91,6 @@ const getClasses = async (req, res) => {
       const classIds = enrollments.map(e => e.classId);
       filter._id = { $in: classIds };
     }
-    // Admin sees all
 
     if (status) filter.status = status;
 
@@ -102,10 +102,10 @@ const getClasses = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    // For students and teachers, hide the jitsi room name in list view (only reveal when joining)
+    // Fix #7: Only hide jitsiRoomName from students (not from admins who need it to manage their classes)
     const formattedClasses = classes.map(c => {
       const classObj = c.toObject();
-      if (req.user.role === 'student' || req.user.role === 'admin') {
+      if (req.user.role === 'student') {
         delete classObj.jitsiRoomName;
       }
       return classObj;
@@ -195,6 +195,22 @@ const updateClass = async (req, res) => {
     await classItem.save();
     await logActivity(req.user._id, 'update_class', classItem._id, `Updated class: ${classItem.title}`);
 
+    // Feature #16: Emit real-time event when a class goes live or ends
+    // so students and the teacher dashboard get instant updates without polling
+    const io = getIO();
+    if (io && status === 'live') {
+      io.emit('class_live', {
+        classId: classItem._id.toString(),
+        title: classItem.title,
+        teacherName: req.user.name
+      });
+    } else if (io && status === 'completed') {
+      io.emit('class_ended', {
+        classId: classItem._id.toString(),
+        title: classItem.title
+      });
+    }
+
     res.json({ message: 'Class updated successfully.', class: classItem });
   } catch (error) {
     res.status(500).json({ message: 'Server error updating class.' });
@@ -235,7 +251,7 @@ const joinClass = async (req, res) => {
     const jitsiConfig = getJitsiConfig(req.user.role, req.user.name, classItem.jitsiRoomName);
 
     // Log join activity with session tracking
-    await logActivity(req.user._id, 'class_join', classItem._id, 
+    await logActivity(req.user._id, 'class_join', classItem._id,
       `Joined class: ${classItem.title}${sessionId ? ` [Session: ${sessionId}]` : ''}`);
 
     res.json({

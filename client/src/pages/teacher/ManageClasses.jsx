@@ -7,6 +7,12 @@ import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
+
+// Resolve backend socket URL (same pattern as ClassroomChat)
+const SOCKET_URL = import.meta.env.PROD
+  ? window.location.origin
+  : (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000');
 
 const ManageClasses = () => {
   const navigate = useNavigate();
@@ -20,20 +26,37 @@ const ManageClasses = () => {
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [enrollLoading, setEnrollLoading] = useState(false);
 
-  useEffect(() => {
-    fetchClasses();
-    const interval = setInterval(fetchClasses, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const fetchClasses = async () => {
     try {
       const res = await api.get('/classes');
       setClasses(res.data.classes || []);
     } catch (_err) {
       toast.error(_err?.response?.data?.message || 'Failed to load classes');
-    } finally { setLoading(false); setRefreshing(false); }
+    } finally { setLoading(false); }
   };
+
+  useEffect(() => {
+    fetchClasses();
+
+    // Fix #1 & #10: Replace setInterval polling with Socket.IO real-time events.
+    // The server emits 'class_live' and 'class_ended' when status changes.
+    const socket = io(SOCKET_URL);
+
+    socket.on('class_live', ({ classId, title }) => {
+      setClasses(prev => prev.map(c =>
+        c._id === classId ? { ...c, status: 'live' } : c
+      ));
+      toast.success(`🔴 "${title}" is now live!`);
+    });
+
+    socket.on('class_ended', ({ classId, title }) => {
+      setClasses(prev => prev.map(c =>
+        c._id === classId ? { ...c, status: 'completed' } : c
+      ));
+    });
+
+    return () => socket.disconnect();
+  }, []);
 
   const openEnrollModal = async (cls) => {
     setSelectedClass(cls);
@@ -70,12 +93,13 @@ const ManageClasses = () => {
       setEnrollments(enrollments.filter(e => e._id !== enrollmentId));
     } catch (_err) { toast.error(_err?.response?.data?.message || 'Failed to remove student'); }
   };
-  
+
   const handleUpdateStatus = async (classId, newStatus) => {
     try {
       await api.patch(`/classes/${classId}`, { status: newStatus });
       toast.success(`Class marked as ${newStatus}`);
-      fetchClasses();
+      // Optimistically update local state; socket event will also arrive and confirm
+      setClasses(prev => prev.map(c => c._id === classId ? { ...c, status: newStatus } : c));
     } catch (_err) { toast.error(_err?.response?.data?.message || 'Failed to update class state'); }
   };
 
@@ -85,7 +109,7 @@ const ManageClasses = () => {
     <div className="animate-fade-in">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: 700, margin: '0 0 0.5rem 0' }}>Manage Classes</h1>
-        <p style={{ color: 'var(--text-muted)', margin: 0 }}>View, edit, and start live sessions. Auto-refreshing every 5 seconds.</p>
+        <p style={{ color: 'var(--text-muted)', margin: 0 }}>View, edit, and start live sessions. Updates are real-time.</p>
       </div>
 
       {classes.some(c => c.status === 'live') && (
@@ -101,7 +125,7 @@ const ManageClasses = () => {
       )}
 
       <Card>
-        <Table 
+        <Table
           headers={['Title', 'Schedule', 'Status', 'Duration', 'Actions']}
           data={classes}
           emptyMessage="You haven't created any classes yet."
@@ -158,7 +182,7 @@ const ManageClasses = () => {
               <h4 style={{ fontSize: '0.95rem', fontWeight: 600, margin: '0 0 1rem 0' }}>
                 Enrolled Students ({enrollments.length})
               </h4>
-              
+
               {enrollments.length === 0 ? (
                 <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 1rem' }}>No students enrolled yet. Add one above.</p>
               ) : (
@@ -169,7 +193,7 @@ const ManageClasses = () => {
                         <span style={{ fontWeight: 500, display: 'block' }}>{e.studentId?.name}</span>
                         <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{e.studentId?.studentId}</span>
                       </div>
-                      <Button size="sm" variant="ghost" style={{ color: 'var(--danger)', padding: '0.35rem 0.75rem', whiteSpace: 'nowrap' }} 
+                      <Button size="sm" variant="ghost" style={{ color: 'var(--danger)', padding: '0.35rem 0.75rem', whiteSpace: 'nowrap' }}
                         onClick={() => handleRemoveEnrollment(e._id)}>✕ Remove</Button>
                     </div>
                   ))}

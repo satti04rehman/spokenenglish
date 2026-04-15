@@ -6,6 +6,12 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { io } from 'socket.io-client';
+
+// Resolve backend socket URL (same pattern as ClassroomChat)
+const SOCKET_URL = import.meta.env.PROD
+  ? window.location.origin
+  : (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000');
 
 const MyClasses = () => {
   const navigate = useNavigate();
@@ -19,14 +25,36 @@ const MyClasses = () => {
         const sorted = res.data.classes.sort((a, b) => new Date(a.schedule) - new Date(b.schedule));
         setClasses(sorted);
       } catch (err) {
-        // eslint-disable-next-line no-unused-vars
         toast.error('Failed to load classes');
-      }
-      finally { setLoading(false); }
+      } finally { setLoading(false); }
     };
+
     fetchClasses();
-    const interval = setInterval(fetchClasses, 3000);
-    return () => clearInterval(interval);
+
+    // Fix #9: Replace 3s setInterval polling with Socket.IO real-time updates.
+    // Server emits 'class_live' when teacher starts a class and 'class_ended' when they end it.
+    const socket = io(SOCKET_URL);
+
+    socket.on('class_live', ({ classId, title, teacherName }) => {
+      setClasses(prev => {
+        const updated = prev.map(c =>
+          c._id === classId ? { ...c, status: 'live' } : c
+        );
+        // Only show toast if this class is in the student's list
+        if (updated.some(c => c._id === classId && c.status === 'live')) {
+          toast.success(`🔴 "${title}" is now live! Join now.`, { duration: 6000 });
+        }
+        return updated;
+      });
+    });
+
+    socket.on('class_ended', ({ classId }) => {
+      setClasses(prev => prev.map(c =>
+        c._id === classId ? { ...c, status: 'completed' } : c
+      ));
+    });
+
+    return () => socket.disconnect();
   }, []);
 
   if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
@@ -38,7 +66,7 @@ const MyClasses = () => {
     <div className="animate-fade-in">
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: 700, margin: '0 0 0.5rem 0' }}>My Classes</h1>
-        <p style={{ color: 'var(--text-muted)', margin: 0 }}>Your learning schedule - join live classes now!</p>
+        <p style={{ color: 'var(--text-muted)', margin: 0 }}>Your learning schedule — you'll be notified instantly when a class goes live.</p>
       </div>
 
       {liveClasses.length > 0 && (
@@ -72,7 +100,7 @@ const MyClasses = () => {
             {liveClasses.length > 0 ? 'Upcoming Classes' : 'Your Classes'}
           </h2>
           <Card>
-            <Table 
+            <Table
               headers={['Topic', 'Instructor', 'Date & Time', 'Status', 'Action']}
               data={otherClasses}
               emptyMessage="No more classes scheduled."
