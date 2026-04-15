@@ -7,7 +7,7 @@ const authorize = require('../middleware/role');
 router.use(auth);
 
 router.get('/stats', authorize('admin'), getActivityStats);
-router.get('/', authorize('admin'), getActivityLogs);
-router.post('/', authorize('admin'), createActivityLog);
+router.get('/', authorize('admin', 'student'), getActivityLogs);
+router.post('/', authorize('admin', 'student'), createActivityLog);
 
 module.exports = router;

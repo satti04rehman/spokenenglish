@@ -8,10 +8,10 @@ const authorize = require('../middleware/role');
 router.use(auth);
 
 router.post('/', authorize('admin'), createClass);
-router.get('/', authorize('admin'), getClasses);
-router.get('/:id', authorize('admin'), getClass);
+router.get('/', authorize('admin', 'student'), getClasses);
+router.get('/:id', authorize('admin', 'student'), getClass);
 router.patch('/:id', authorize('admin'), updateClass);
-router.get('/:id/join', authorize('admin'), joinClass);
-router.post('/:id/leave', authorize('admin'), leaveClass);
+router.get('/:id/join', authorize('admin', 'student'), joinClass);
+router.post('/:id/leave', authorize('admin', 'student'), leaveClass);
 
 module.exports = router;
