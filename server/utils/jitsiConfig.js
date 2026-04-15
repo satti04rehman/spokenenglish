@@ -22,7 +22,7 @@ const getJitsiConfig = (role, userName, roomName) => {
       displayName: userName
     },
     configOverwrite: {
-      prejoinPageEnabled: true, // Crucial for modern browser permission handling
+      prejoinPageEnabled: false, 
       startWithAudioMuted: true,
       startWithVideoMuted: true,
       enableNoAudioDetection: true,

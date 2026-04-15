@@ -49,31 +49,37 @@ const JitsiClassRoom = () => {
     if (!jitsiConfig || !jitsiContainerContext.current) return;
 
     const initJitsi = () => {
-      jitsiContainerContext.current.innerHTML = '';
-      const domain = 'meet.jit.si';
-      const options = {
-        ...jitsiConfig,
-        parentNode: jitsiContainerContext.current,
-        width: '100%',
-        height: '100%',
-      };
+      const delayId = setTimeout(() => {
+        if (!jitsiContainerContext.current) return;
+        jitsiContainerContext.current.innerHTML = '';
+        const domain = 'meet.jit.si';
+        const options = {
+          ...jitsiConfig,
+          parentNode: jitsiContainerContext.current,
+          width: '100%',
+          height: '100%',
+        };
 
-      const api = new window.JitsiMeetExternalAPI(domain, options);
-      jitsiApiRef.current = api;
+        const api = new window.JitsiMeetExternalAPI(domain, options);
+        jitsiApiRef.current = api;
 
-      const timeoutId = setTimeout(() => { setJitsiLoading(false); }, 3500);
+        const timeoutId = setTimeout(() => { setJitsiLoading(false); }, 3500);
 
-      api.addListener('videoConferenceJoined', () => {
-        clearTimeout(timeoutId);
-        setJitsiLoading(false);
-      });
-
-      api.addListener('readyToClose', () => {
-        logClassExit().then(() => {
-          if (user?.role === 'admin') navigate('/teacher/dashboard');
-          else navigate('/student/dashboard');
+        api.addListener('videoConferenceJoined', () => {
+          clearTimeout(timeoutId);
+          setJitsiLoading(false);
         });
-      });
+
+        api.addListener('readyToClose', () => {
+          logClassExit().then(() => {
+            if (user?.role === 'admin') navigate('/teacher/dashboard');
+            else navigate('/student/dashboard');
+          });
+        });
+      }, 100);
+
+      // Cleanup function can clear this to prevent ghost participants
+      jitsiApiRef.current = { dispose: () => clearTimeout(delayId) };
     };
 
     if (!window.JitsiMeetExternalAPI) {
@@ -91,7 +97,9 @@ const JitsiClassRoom = () => {
     }
 
     return () => {
-      if (jitsiApiRef.current) jitsiApiRef.current.dispose();
+      if (jitsiApiRef.current && typeof jitsiApiRef.current.dispose === 'function') {
+        jitsiApiRef.current.dispose();
+      }
     };
   }, [jitsiConfig, navigate, user?.role]);
 
