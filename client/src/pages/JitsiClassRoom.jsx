@@ -48,10 +48,16 @@ const JitsiClassRoom = () => {
   useEffect(() => {
     if (!jitsiConfig || !jitsiContainerContext.current) return;
 
+    let apiInstance = null;
+    let delayId = null;
+
     const initJitsi = () => {
-      const delayId = setTimeout(() => {
+      delayId = setTimeout(() => {
         if (!jitsiContainerContext.current) return;
+        
+        // Ensure container is empty before creating new instance
         jitsiContainerContext.current.innerHTML = '';
+        
         const domain = 'meet.jit.si';
         const options = {
           ...jitsiConfig,
@@ -60,26 +66,27 @@ const JitsiClassRoom = () => {
           height: '100%',
         };
 
-        const api = new window.JitsiMeetExternalAPI(domain, options);
-        jitsiApiRef.current = api;
+        apiInstance = new window.JitsiMeetExternalAPI(domain, options);
+        jitsiApiRef.current = apiInstance;
 
         const timeoutId = setTimeout(() => { setJitsiLoading(false); }, 3500);
 
-        api.addListener('videoConferenceJoined', () => {
+        apiInstance.addListener('videoConferenceJoined', () => {
           clearTimeout(timeoutId);
           setJitsiLoading(false);
+          // Set display name again just in case it didn't apply
+          if (jitsiConfig.userInfo?.displayName) {
+            apiInstance.executeCommand('displayName', jitsiConfig.userInfo.displayName);
+          }
         });
 
-        api.addListener('readyToClose', () => {
+        apiInstance.addListener('readyToClose', () => {
           logClassExit().then(() => {
             if (user?.role === 'admin') navigate('/teacher/dashboard');
             else navigate('/student/dashboard');
           });
         });
-      }, 100);
-
-      // Cleanup function can clear this to prevent ghost participants
-      jitsiApiRef.current = { dispose: () => clearTimeout(delayId) };
+      }, 150); // Slight delay to allow DOM to settle
     };
 
     if (!window.JitsiMeetExternalAPI) {
@@ -96,9 +103,17 @@ const JitsiClassRoom = () => {
       initJitsi();
     }
 
+    // Strict cleanup function
     return () => {
-      if (jitsiApiRef.current && typeof jitsiApiRef.current.dispose === 'function') {
-        jitsiApiRef.current.dispose();
+      if (delayId) clearTimeout(delayId);
+      if (apiInstance) {
+        try {
+          // Force hangup before disposing to cleanly disconnect from Jitsi server
+          apiInstance.executeCommand('hangup');
+          apiInstance.dispose();
+        } catch (e) {
+          console.error("Error disposing Jitsi instance:", e);
+        }
       }
     };
   }, [jitsiConfig, navigate, user?.role]);
