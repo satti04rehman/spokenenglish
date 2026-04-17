@@ -102,7 +102,7 @@ const UsersManagement = () => {
           emptyMessage="No users matching your filters were found."
           renderRow={(u) => (
             <>
-              <td style={{ padding: '1.25rem' }}>
+              <td data-label="User" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'var(--primary-faint)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>
                     {u.name.charAt(0).toUpperCase()}
@@ -113,32 +113,32 @@ const UsersManagement = () => {
                   </div>
                 </div>
               </td>
-              <td style={{ padding: '1.25rem' }}>
+              <td data-label="Phone" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                   <Phone size={14} style={{ color: 'var(--text-light)', flexShrink: 0 }} />
                   {u.phone || 'No phone'}
                 </div>
               </td>
-              <td style={{ padding: '1.25rem' }}>
+              <td data-label="Password" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                   <KeyRound size={14} style={{ color: 'var(--warning)', flexShrink: 0 }} />
                   {currentUser.studentId === 'admin' ? (u.plainTextPassword || <span style={{ color: 'var(--text-muted)' }}>Encrypted</span>) : '••••••••'}
                 </div>
               </td>
-              <td style={{ padding: '1.25rem' }}>
+              <td data-label="Role" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <Badge variant={u.role === 'admin' ? 'danger' : 'primary'}>{u.role.toUpperCase()}</Badge>
                   <Badge variant={u.isActive ? 'success' : 'gray'}>{u.isActive ? 'ACTIVE' : 'INACTIVE'}</Badge>
                 </div>
               </td>
-              <td style={{ padding: '1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+              <td data-label="Joined" style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
                   <Calendar size={14} />
                   {new Date(u.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                 </div>
               </td>
               <td style={{ padding: '1.25rem' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="table-action-group">
                   {u.role !== 'admin' && (
                     <Button size="sm" variant={u.isActive ? 'secondary' : 'primary'} onClick={() => handleToggleStatus(u._id, u.isActive)}
                       icon={u.isActive ? <UserX size={16} /> : <UserCheck size={16} />} title={u.isActive ? 'Deactivate User' : 'Activate User'}

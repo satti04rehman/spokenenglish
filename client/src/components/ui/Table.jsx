@@ -9,7 +9,6 @@ const Table = ({ headers, data, renderRow, emptyMessage = 'No data available' })
         width: '100%',
         borderCollapse: 'collapse',
         textAlign: 'left',
-        minWidth: '600px',
         fontSize: '0.95rem'
       }}>
         <thead style={{

@@ -27,7 +27,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
           gap: '1rem'
         }}>
           <h2 style={{
-            fontSize: '1.5rem',
+            fontSize: 'clamp(1.1rem, 4vw, 1.5rem)',
             fontWeight: '700',
             margin: 0,
             color: 'var(--text-main)',

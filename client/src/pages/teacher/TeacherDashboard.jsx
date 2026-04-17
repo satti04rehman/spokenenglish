@@ -19,6 +19,7 @@ import { Link, useNavigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import Button from '../../components/ui/Button';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
@@ -81,7 +82,13 @@ const TeacherDashboard = () => {
     >
       <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.5rem 0', letterSpacing: '-1px' }}>
+          <h1 style={{ 
+            fontSize: 'clamp(1.5rem, 5vw, 2.25rem)', 
+            fontWeight: 800, 
+            color: 'var(--text-main)', 
+            margin: '0 0 0.5rem 0', 
+            letterSpacing: '-1px' 
+          }}>
             Hello, {user.name.split(' ')[0]} 👋
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', margin: 0 }}>
@@ -157,13 +164,13 @@ const TeacherDashboard = () => {
               emptyMessage="No upcoming classes scheduled. Start by creating one!"
               renderRow={(cls) => (
                 <>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td data-label="Class" style={{ padding: '1.25rem' }}>
                     <div style={{ fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.25rem' }}>{cls.title}</div>
                     <div style={{ fontSize: '0.8125rem', color: 'var(--text-light)', fontFamily: 'monospace' }}>
                       {cls.description ? cls.description.substring(0, 40) + '...' : 'No description'}
                     </div>
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td data-label="Schedule" style={{ padding: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                       <Clock size={14} />
                       {new Date(cls.schedule).toLocaleDateString()}
@@ -172,7 +179,7 @@ const TeacherDashboard = () => {
                       {new Date(cls.schedule).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td data-label="Status" style={{ padding: '1.25rem' }}>
                     <Badge variant={cls.status === 'scheduled' ? 'primary' : 'success'}>
                       {cls.status.toUpperCase()}
                     </Badge>
@@ -194,56 +201,60 @@ const TeacherDashboard = () => {
 
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '1.5rem' }}>
-            Quick Resources
+            Platform Overview
           </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {[
-              { title: 'Teaching Guide', desc: 'Tips for effective online teaching', icon: <BookOpen size={20} />, color: '#6366f1' },
-              { title: 'Classroom Setup', desc: 'Configure Jitsi and audio/video', icon: <Video size={20} />, color: '#ec4899' },
-              { title: 'Student Progress', desc: 'Analytics and performance tracking', icon: <Activity size={20} />, color: '#10b981' }
-            ].map((res, i) => (
-              <div 
-                key={i}
-                style={{
-                  padding: '1.25rem',
-                  backgroundColor: 'var(--surface)',
-                  borderRadius: '1rem',
-                  border: '1px solid var(--border-color)',
-                  display: 'flex',
-                  gap: '1rem',
-                  cursor: 'pointer',
-                  transition: 'var(--transition-fast)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--primary)';
-                  e.currentTarget.style.transform = 'translateX(5px)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--border-color)';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
+          <div style={{ 
+            backgroundColor: 'var(--surface)', 
+            padding: '1.5rem', 
+            borderRadius: '1.25rem', 
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid var(--border-color)',
+            height: '350px'
+          }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={[
+                  { name: 'Mon', students: 12 },
+                  { name: 'Tue', students: 19 },
+                  { name: 'Wed', students: 15 },
+                  { name: 'Thu', students: 22 },
+                  { name: 'Fri', students: 28 },
+                  { name: 'Sat', students: 10 }
+                ]}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
               >
-                <div style={{ 
-                  width: '40px', 
-                  height: '40px', 
-                  borderRadius: '10px', 
-                  backgroundColor: `${res.color}15`, 
-                  color: res.color,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  {res.icon}
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>{res.title}</div>
-                  <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>{res.desc}</div>
-                </div>
-              </div>
-            ))}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }} 
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }} 
+                />
+                <Tooltip 
+                  cursor={{ fill: 'var(--primary-faint)' }}
+                  contentStyle={{ 
+                    backgroundColor: 'var(--surface)', 
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '0.5rem',
+                    boxShadow: 'var(--shadow-md)'
+                  }}
+                  itemStyle={{ color: 'var(--text-main)', fontWeight: 600 }}
+                />
+                <Bar 
+                  dataKey="students" 
+                  fill="var(--primary)" 
+                  radius={[4, 4, 0, 0]} 
+                  barSize={40}
+                  animationDuration={1500}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </motion.div>

@@ -178,7 +178,7 @@ const ActivityLogs = () => {
                 emptyMessage="No students found."
                 renderRow={(student) => (
                   <>
-                    <td style={{ padding: '1.25rem' }}>
+                    <td data-label="Name" style={{ padding: '1.25rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: 700, fontSize: '0.8rem', flexShrink: 0 }}>
                           {student.name?.charAt(0).toUpperCase() || '?'}
@@ -188,40 +188,40 @@ const ActivityLogs = () => {
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: '1.25rem' }}>
+                    <td data-label="Student ID" style={{ padding: '1.25rem' }}>
                       <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', backgroundColor: 'var(--bg-secondary)', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', color: 'var(--primary)' }}>
                         {student.studentId}
                       </div>
                     </td>
-                    <td style={{ padding: '1.25rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <td data-label="Password" style={{ padding: '1.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         <div style={{ fontFamily: 'monospace', fontSize: '0.875rem', backgroundColor: 'var(--bg-secondary)', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', color: visiblePasswords[student._id] ? 'var(--danger)' : 'var(--text-light)' }}>
                           {visiblePasswords[student._id] ? student.plainTextPassword || 'N/A (changed)' : '••••••••'}
                         </div>
                         <button
                           onClick={() => togglePasswordVisibility(student._id)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '0.25rem' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '0.25rem', minHeight: '36px' }}
                           title={visiblePasswords[student._id] ? 'Hide' : 'Show'}
                         >
                           <Eye size={16} />
                         </button>
                       </div>
                     </td>
-                    <td style={{ padding: '1.25rem' }}>
+                    <td data-label="Phone" style={{ padding: '1.25rem' }}>
                       {student.phone || 'N/A'}
                     </td>
                     <td style={{ padding: '1.25rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div className="table-action-group">
                         <button
                           onClick={() => copyToClipboard(student.studentId, 'Student ID')}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '0.5rem' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '0.5rem', minHeight: '36px' }}
                           title="Copy ID"
                         >
                           <Copy size={16} />
                         </button>
                         <button
                           onClick={() => copyToClipboard(student.plainTextPassword || '', 'Password')}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', padding: '0.5rem' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', padding: '0.5rem', minHeight: '36px' }}
                           title="Copy Password"
                         >
                           <Copy size={16} />
@@ -238,7 +238,7 @@ const ActivityLogs = () => {
               emptyMessage="No activity logs found matching your criteria."
               renderRow={(log) => (
                 <>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td data-label="Time" style={{ padding: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
                       <Clock size={14} style={{ color: 'var(--text-light)', flexShrink: 0 }} />
                       {new Date(log.timestamp).toLocaleDateString()}
@@ -247,7 +247,7 @@ const ActivityLogs = () => {
                       {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </div>
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td data-label="User" style={{ padding: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: 700, fontSize: '0.8rem', flexShrink: 0 }}>
                         {log.userId?.name?.charAt(0).toUpperCase() || '?'}
@@ -258,18 +258,18 @@ const ActivityLogs = () => {
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <td data-label="Action" style={{ padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <div style={{ color: `var(--${getActionBadgeVariant(log.action)})`, flexShrink: 0 }}>{getActionIcon(log.action)}</div>
                       <Badge variant={getActionBadgeVariant(log.action)}>{log.action.replace('_', ' ').toUpperCase()}</Badge>
                     </div>
                   </td>
-                  <td style={{ padding: '1.25rem', maxWidth: '300px' }}>
-                    <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td data-label="Details" style={{ padding: '1.25rem' }}>
+                    <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', wordBreak: 'break-word' }}>
                       {log.details || <span style={{ color: 'var(--text-light)', fontStyle: 'italic' }}>No additional details</span>}
                     </div>
                   </td>
-                  <td style={{ padding: '1.25rem' }}>
+                  <td data-label="IP" style={{ padding: '1.25rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                       <Shield size={12} />
                       {log.ipAddress || '0.0.0.0'}

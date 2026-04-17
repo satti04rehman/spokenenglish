@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Link } from 'react-router-dom';
 import {
   LogOut,
@@ -9,13 +10,16 @@ import {
   Search,
   ChevronDown,
   Key,
-  Menu
+  Menu,
+  Moon,
+  Sun
 } from 'lucide-react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Topbar = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   return (
@@ -64,6 +68,28 @@ const Topbar = ({ onMenuToggle }) => {
       </div>
 
       <div className="topbar-actions">
+        <button 
+          onClick={toggleTheme}
+          style={{
+            padding: '0.5rem',
+            borderRadius: '0.5rem',
+            border: 'none',
+            backgroundColor: 'transparent',
+            color: 'var(--text-muted)',
+            cursor: 'pointer',
+            transition: 'var(--transition-fast)',
+            minWidth: '36px',
+            minHeight: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
         <button style={{
           padding: '0.5rem',
           borderRadius: '0.5rem',

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Layout
@@ -26,8 +27,9 @@ import MyActivityLogs from './pages/student/MyActivityLogs';
 function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-right" />
-      <BrowserRouter>
+      <ThemeProvider>
+        <Toaster position="top-right" />
+        <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/change-password" element={
@@ -72,6 +74,7 @@ function App() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

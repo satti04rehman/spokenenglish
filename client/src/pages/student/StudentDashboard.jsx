@@ -90,7 +90,7 @@ const StudentDashboard = () => {
       style={{ maxWidth: '1200px', margin: '0 auto' }}
     >
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.5rem 0', letterSpacing: '-1px' }}>
+        <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2.25rem)', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.5rem 0', letterSpacing: '-1px' }}>
           Welcome back, {user?.name.split(' ')[0]}! 🚀
         </h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', margin: 0 }}>

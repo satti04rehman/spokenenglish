@@ -112,12 +112,12 @@ const MyClasses = () => {
               headers={['Topic', 'Instructor', 'Date & Time', 'Status', 'Action']}
               data={otherClasses}
               emptyMessage="No more classes scheduled."
-              renderRow={(cls) => (
+          renderRow={(cls) => (
                 <>
-                  <td style={{ padding: '1rem', fontWeight: 500 }}>{cls.title}</td>
-                  <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>{cls.teacherId?.name || 'TBA'}</td>
-                  <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>{new Date(cls.schedule).toLocaleString()}</td>
-                  <td style={{ padding: '1rem' }}>
+                  <td data-label="Topic" style={{ padding: '1rem', fontWeight: 500 }}>{cls.title}</td>
+                  <td data-label="Instructor" style={{ padding: '1rem', color: 'var(--text-muted)' }}>{cls.teacherId?.name || 'TBA'}</td>
+                  <td data-label="Date & Time" style={{ padding: '1rem' }}>{new Date(cls.schedule).toLocaleString()}</td>
+                  <td data-label="Status" style={{ padding: '1rem' }}>
                     <Badge variant={cls.status === 'scheduled' ? 'primary' : 'gray'}>
                       {cls.status === 'scheduled' ? '📅 Scheduled' : '✓ Completed'}
                     </Badge>

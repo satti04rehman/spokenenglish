@@ -131,18 +131,18 @@ const ManageClasses = () => {
           emptyMessage="You haven't created any classes yet."
           renderRow={(cls) => (
             <>
-              <td style={{ padding: '1rem', fontWeight: 500 }}>{cls.title}</td>
-              <td style={{ padding: '1rem', whiteSpace: 'nowrap', fontSize: '0.9rem' }}>{new Date(cls.schedule).toLocaleString()}</td>
-              <td style={{ padding: '1rem' }}>
+              <td data-label="Title" style={{ padding: '1rem', fontWeight: 500 }}>{cls.title}</td>
+              <td data-label="Schedule" style={{ padding: '1rem', fontSize: '0.9rem' }}>{new Date(cls.schedule).toLocaleString()}</td>
+              <td data-label="Status" style={{ padding: '1rem' }}>
                 <Badge variant={cls.status === 'live' ? 'danger' : (cls.status === 'scheduled' ? 'primary' : 'gray')}>
                   {cls.status === 'live' ? '🔴 LIVE' : cls.status}
                 </Badge>
               </td>
-              <td style={{ padding: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+              <td data-label="Duration" style={{ padding: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                 {cls.duration ? `${cls.duration} min` : '60 min'}
               </td>
               <td style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div className="table-action-group">
                 {cls.status === 'live' ? (
                   <>
                     <Button size="sm" style={{ backgroundColor: 'rgb(239, 68, 68)', color: 'white', fontWeight: 600 }}

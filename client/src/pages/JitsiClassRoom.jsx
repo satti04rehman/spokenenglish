@@ -160,6 +160,7 @@ const JitsiClassRoom = () => {
       {/* Floating Chat Toggle */}
       <button 
         onClick={() => setIsChatOpen(!isChatOpen)}
+        className="jitsi-chat-fab"
         style={{
           position: 'absolute',
           right: '20px',
